@@ -177,7 +177,7 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
   deploy_to_kubernetes:
-    runs-on: self-host
+    runs-on: self-hosted
     needs: trivy_image_scan
     steps:
      - name: Checkout Code
