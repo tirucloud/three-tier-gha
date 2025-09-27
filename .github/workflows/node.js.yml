@@ -197,10 +197,8 @@ jobs:
        uses: azure/setup-kubectl@v3
        with:
         version: latest
-     - name: Configure kubeconfig
-       run: |
-        mkdir -p $HOME/.kube
-        echo "${{ secrets.EKS_KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+     - name: Update kubeconfig for EKS
+       run: aws eks update-kubeconfig --name devopsshack-cluster --region us-east-1
      - name: Deploy to EKS
        run: |
         kubectl apply -f k8s-prod/sc.yaml 
