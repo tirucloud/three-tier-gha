@@ -1,4 +1,4 @@
-name: Node.js CICD  
+name: Node.js CI/CD
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '23'   # adjust version as per your Jenkins setup
+          node-version: '23'   # adjust as needed
 
       - name: Frontend Compilation (Syntax Check)
         run: |
@@ -36,13 +36,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Gitleaks Setup
+      - name: Run Gitleaks Scan
         uses: gitleaks/gitleaks-action@v2
-
-      - name: Gitleaks Scan
-        run: |
-          gitleaks detect --source ./client --exit-code 1
-          gitleaks detect --source ./api --exit-code 1
+        with:
+          args: detect --source . --exit-code 1
 
   trivy_fs_scan:
     runs-on: self-hosted
@@ -50,15 +47,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'table'
+          scan-type: fs
+          scan-ref: .
+          format: table
           ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
 
   sonar-frontend:
     runs-on: self-hosted
@@ -70,7 +68,7 @@ jobs:
       - name: SonarQube Scan (client)
         uses: sonarsource/sonarqube-scan-action@master
         with:
-          projectBaseDir: client        # 👈 instead of working-directory
+          projectBaseDir: client
           args: >
             -Dsonar.projectKey=myorg_client
             -Dsonar.projectName=myorg_client
@@ -90,7 +88,7 @@ jobs:
       - name: SonarQube Scan (api)
         uses: sonarsource/sonarqube-scan-action@master
         with:
-          projectBaseDir: api           # 👈 instead of working-directory
+          projectBaseDir: api
           args: >
             -Dsonar.projectKey=myorg_api
             -Dsonar.projectName=myorg_api
@@ -106,20 +104,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build and Push Docker image
+
+      - name: Build and Push Backend Image
         uses: docker/build-push-action@v6
         with:
-          context: ./api  
+          context: ./api
           push: true
           tags: tirucloud/backend:latest
           file: ./api/Dockerfile
@@ -130,17 +131,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build and Push Docker image
+
+      - name: Build and Push Frontend Image
         uses: docker/build-push-action@v6
         with:
           context: ./client
@@ -150,44 +154,44 @@ jobs:
 
   trivy_image_scan:
     runs-on: self-hosted
-    needs: build_frontend_docker_image_and_push   # or whatever job built/pushed your image
+    needs: build_frontend_docker_image_and_push
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Trivy image scan for backend
+      - name: Run Trivy Image Scan (Backend)
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          scan-type: image               # 👈 scan container image
+          scan-type: image
           image-ref: tirucloud/backend:latest
           format: table
-          exit-code: '0'                 
+          exit-code: '0'
           ignore-unfixed: true
           vuln-type: os,library
           severity: CRITICAL,HIGH
-          
-      - name: Run Trivy image scan for frontend
+
+      - name: Run Trivy Image Scan (Frontend)
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          scan-type: image               # 👈 scan container image
+          scan-type: image
           image-ref: tirucloud/frontend:latest
           format: table
-          exit-code: '0'              
+          exit-code: '0'
           ignore-unfixed: true
           vuln-type: os,library
           severity: CRITICAL,HIGH
+
   deploy_to_kubernetes:
     runs-on: self-hosted
     needs: trivy_image_scan
     env:
       AWS_REGION: us-east-1
       CLUSTER_NAME: tiru-cluster
+
     steps:
-      # 🧱 Step 1: Checkout Code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 🔐 Step 2: Configure AWS Credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -195,29 +199,27 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 🪣 Step 3: Install AWS CLI (latest version)
       - name: Install AWS CLI
         run: |
           echo "Installing AWS CLI..."
+          sudo apt-get update -y
+          sudo apt-get install -y unzip
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip -q awscliv2.zip
           sudo ./aws/install
           aws --version
 
-      # ⚙️ Step 4: Install kubectl
       - name: Setup kubectl
         uses: aws-actions/setup-kubectl@v3
         with:
           version: latest
 
-      # 🎯 Step 5: Update kubeconfig for EKS cluster
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
           kubectl get nodes
 
-      # 🚀 Step 6: Deploy manifests to EKS
-      - name: Deploy Kubernetes manifests
+      - name: Deploy Kubernetes Manifests
         run: |
           kubectl apply -f k8s-prod/sc.yaml
           kubectl apply -f k8s-prod/mysql.yaml
@@ -225,5 +227,3 @@ jobs:
           kubectl apply -f k8s-prod/frontend.yaml
           kubectl apply -f k8s-prod/ci.yaml
           kubectl apply -f k8s-prod/ingress.yaml
-
-     
