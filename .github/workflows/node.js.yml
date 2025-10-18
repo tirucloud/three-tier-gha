@@ -194,7 +194,7 @@ jobs:
           aws eks update-kubeconfig --region us-east-1 --name tiru-cluster
 
     - name: Set up kubectl
-      uses: aws/setup-kubectl@v3
+      uses: azure/setup-kubectl@v4
       with:
         version: latest
    
