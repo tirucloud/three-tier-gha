@@ -180,46 +180,37 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: CRITICAL,HIGH
-
   deploy_to_kubernetes:
-    runs-on: self-hosted
+    runs-on: Agent-1
     needs: trivy_image_scan
-    env:
-      AWS_REGION: us-east-1
-      CLUSTER_NAME: tiru-cluster
-
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: Install AWS CLI
         run: |
-          echo "Installing AWS CLI..."
-          sudo apt-get update -y
-          sudo apt-get install -y unzip
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip -q awscliv2.zip
-          sudo ./aws/install
-          aws --version
+          unzip awscliv2.zip
+          sudo ./aws/install --update
 
-      - name: Setup kubectl
-        uses: aws-actions/setup-kubectl@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
         with:
           version: latest
 
-      - name: Update kubeconfig
+      - name: Configure kubeconfig
         run: |
-          aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-          kubectl get nodes
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.EKS_KUBECONFIG }}" | base64 -d > $HOME/.kube/config
 
-      - name: Deploy Kubernetes Manifests
+      - name: Deploy to EKS
         run: |
           kubectl apply -f k8s-prod/sc.yaml
           kubectl apply -f k8s-prod/mysql.yaml
