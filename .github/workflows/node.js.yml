@@ -176,3 +176,36 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: CRITICAL,HIGH
+  deploy_to_kubernetes:
+    runs-on: self-hosted
+    needs: trivy_image_scan
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Update kubeconfig
+      run: |
+          aws eks update-kubeconfig --region us-east-1 --name tiru-cluster
+
+    - name: Set up kubectl
+      uses: aws/setup-kubectl@v3
+      with:
+        version: latest
+   
+    - name: Deploy to EKS
+      run: |
+        with:
+          projectBaseDir: api 
+        kubectl apply -f k8s-prod/sc.yaml 
+        kubectl apply -f k8s-prod/mysql.yaml 
+        kubectl apply -f k8s-prod/backend.yaml 
+        kubectl apply -f k8s-prod/frontend.yaml 
+        kubectl apply -f k8s-prod/ci.yaml 
+        kubectl apply -f k8s-prod/ingress.yaml 
+
