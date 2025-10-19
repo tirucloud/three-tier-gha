@@ -183,6 +183,9 @@ jobs:
   deploy_to_kubernetes:
     runs-on: self-hosted
     needs: trivy_image_scan
+    env:
+     AWS_REGION: us-east-1
+     CLUSTER_NAME: tiru-cluster
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
