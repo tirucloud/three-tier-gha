@@ -213,3 +213,4 @@ jobs:
         kubectl apply -f k8s-prod/frontend.yaml 
         kubectl apply -f k8s-prod/ci.yaml 
         kubectl apply -f k8s-prod/ingress.yaml 
+
