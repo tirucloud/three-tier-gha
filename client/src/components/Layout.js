@@ -9,7 +9,7 @@ function Layout({ children }) {
     <div className="app-layout">
       <header className="app-header slide-down">
         <div className="brand">
-          <img src={logo} alt="DevOps Shack logo" className="logo" />
+          <img src={logo} alt="DevOps logo" className="logo" />
           <div>
             <h1 className="brand-title">DevOps</h1>
             <p className="nav-subtitle">User Management</p>
@@ -31,7 +31,7 @@ function Layout({ children }) {
         </main>
       </div>
       <footer className="app-footer">
-        <p>&copy; {new Date().getFullYear()} DevOps Shack. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} DevOps. All rights reserved.</p>
       </footer>
 
       <button className="help-btn" onClick={() => setShowInfo(true)}>?</button>
