@@ -8,7 +8,7 @@ on:
 
 jobs:
   compile:
-    runs-on: ip-172-31-38-31
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -30,7 +30,7 @@ jobs:
           find . -name "*.js" -exec node --check {} +
 
   gitleaks-scan:
-    runs-on: ip-172-31-38-31
+    runs-on: self-hosted
     needs: compile
     steps:
       - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
           args: detect --source . --exit-code 1
 
   trivy_fs_scan:
-    runs-on: ip-172-31-38-31
+    runs-on: self-hosted
     needs: gitleaks-scan
     steps:
       - name: Checkout code
@@ -59,7 +59,7 @@ jobs:
           severity: CRITICAL,HIGH
 
   sonar-frontend:
-    runs-on: ip-172-31-38-31
+    runs-on: self-hosted
     needs: trivy_fs_scan
     steps:
       - name: Checkout code
@@ -79,7 +79,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   sonar-backend:
-    runs-on: ip-172-31-38-31
+    runs-on: self-hosted
     needs: sonar-frontend
     steps:
       - name: Checkout code
@@ -153,7 +153,7 @@ jobs:
           file: ./client/Dockerfile
 
   trivy_image_scan:
-    runs-on: ip-172-31-38-31
+    runs-on: self-hosted
     needs: build_frontend_docker_image_and_push
     steps:
       - name: Checkout code
@@ -181,7 +181,7 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
   deploy_to_kubernetes:
-    runs-on: ip-172-31-38-31
+    runs-on: self-hosted
     needs: trivy_image_scan
     env:
      AWS_REGION: ap-south-1
