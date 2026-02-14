@@ -1,0 +1,12 @@
+{
+  "name": "three-tier-gha",
+  "version": "1.0.0",
+  "description": "```\r kubectl create ns prod\r kubectl get ingress -n prod\r nslookup ingessurl\r kubectl get cert -n prod\r kubectl describe cert tirucloud-co-tls -n prod\r kubectl delete certificate -n prod tirucloud-co-tls\r ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
