@@ -1,5 +1,4 @@
 # 3TIER-GHA
-
 ```
 kubectl create ns prod
 kubectl get ingress -n prod
@@ -51,6 +50,7 @@ sudo apt install wget
 
 # sonar
 docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+
 
 
 
