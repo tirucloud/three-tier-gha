@@ -1,5 +1,5 @@
 # 3TIER-GHA
-## STEP-1: Create EKS cluster under ap-south-1, follow the steps mentioned at https://github.com/tirucloud/three-tier-gha/blob/main/eks-steps.md
+## STEP-1: Create EKS cluster under ap-south-1, follow the steps mentioned at [Link] https://github.com/tirucloud/three-tier-gha/blob/main/eks-steps.md
 ## STEP-2: Launch ubuntu ec2 server on aws and configure as self hosted runner
 ## STEP-2: Run bellow script to install softwares such as wget, docker, trivy... etc
 ```bash
@@ -54,6 +54,7 @@ kubectl get cert -n prod
 kubectl describe cert tirucloud-co-tls -n prod
 kubectl delete certificate -n prod tirucloud-co-tls
 ```
+
 
 
 
