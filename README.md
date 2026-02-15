@@ -1,14 +1,20 @@
 # 3TIER-GHA
+### STEP-1: Install awscli, terraform, kubectl, eksctl on your computer.
+### STEP-2: Create EKS cluster using terraform under ap-south-1, follow the steps mentioned at [Link](https://github.com/tirucloud/three-tier-gha/blob/main/eks-steps.md)
+- Associate IAM OIDC Provider with EKS
+- Create IAM Service Account for EBS CSI Driver
+- Deploy Add-ons
+    - EBS CSI Driver
+    - NGINX Ingress Controller
+    - cert-manager
 
-```
+```bash
+aws eks --region ap-south-1 update-kubeconfig --name tiru-cluster
+kubectl get nodes
 kubectl create ns prod
-kubectl get ingress -n prod
-nslookup ingessurl
-kubectl get cert -n prod
-kubectl describe cert tirucloud-co-tls -n prod
-kubectl delete certificate -n prod tirucloud-co-tls
 ```
-
+### STEP-3: Launch ubuntu ec2 server on aws and configure as self hosted runner
+### STEP-4: Run bellow script to install softwares such as wget, docker, trivy... etc
 ```bash
 #!/bin/bash
 # Add Docker's official GPG key:
@@ -51,6 +57,25 @@ sudo apt install wget
 
 # sonar
 docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+```
+```bash
+
+kubectl get ingress -n prod
+nslookup ingessurl
+kubectl get cert -n prod
+kubectl describe cert tirucloud-co-tls -n prod
+kubectl delete certificate -n prod tirucloud-co-tls
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
