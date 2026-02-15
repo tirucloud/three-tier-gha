@@ -1,5 +1,7 @@
 # 3TIER-GHA
-
+## STEP-1: Create EKS cluster under ap-south-1, follow the steps mentioned at eks/readme.md
+## STEP-2: Launch ubuntu ec2 server on aws and configure as self hosted runner
+## STEP-2: Run bellow script to install softwares such as wget, docker, trivy... etc
 ```bash
 #!/bin/bash
 # Add Docker's official GPG key:
@@ -43,6 +45,7 @@ sudo apt install wget
 # sonar
 docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
 ```
+
 ```bash
 kubectl create ns prod
 kubectl get ingress -n prod
@@ -51,6 +54,7 @@ kubectl get cert -n prod
 kubectl describe cert tirucloud-co-tls -n prod
 kubectl delete certificate -n prod tirucloud-co-tls
 ```
+
 
 
 
