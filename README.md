@@ -58,15 +58,6 @@ sudo apt install wget
 docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
 ```
 
-```bash
-
-kubectl get ingress -n prod
-nslookup ingessurl
-kubectl get cert -n prod
-kubectl describe cert tirucloud-co-tls -n prod
-kubectl delete certificate -n prod tirucloud-co-tls
-```
-
 ## Create Service Account, Role & Assign that role, And create a secret for Service Account and geenrate a Token
 ### Creating Service Account
 
@@ -154,6 +145,14 @@ metadata:
 ```
 ```bash
 kubectl -n prod describe secret mysecretname
+```
+```bash
+
+kubectl get ingress -n prod
+nslookup ingessurl
+kubectl get cert -n prod
+kubectl describe cert tirucloud-co-tls -n prod
+kubectl delete certificate -n prod tirucloud-co-tls
 ```
 
 
