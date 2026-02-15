@@ -58,82 +58,6 @@ sudo apt install wget
 docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
 ```
 
-## Create Service Account, Role & Assign that role, And create a secret for Service Account and geenrate a Token
-### Creating Service Account
-
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: jenkins
-  namespace: prod
-```
-
-### Create Role 
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: app-role
-  namespace: prod
-rules:
-  - apiGroups:
-        - ""
-        - apps
-        - autoscaling
-        - batch
-        - extensions
-        - policy
-        - rbac.authorization.k8s.io
-    resources:
-      - pods
-      - secrets
-      - componentstatuses
-      - configmaps
-      - daemonsets
-      - deployments
-      - events
-      - endpoints
-      - horizontalpodautoscalers
-      - ingress
-      - jobs
-      - limitranges
-      - namespaces
-      - nodes
-      - pods
-      - persistentvolumes
-      - persistentvolumeclaims
-      - resourcequotas
-      - replicasets
-      - replicationcontrollers
-      - serviceaccounts
-      - services
-    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-```
-
-### Bind the role to service account
-
-
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: app-rolebinding
-  namespace: prod 
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: app-role 
-subjects:
-- namespace: prod 
-  kind: ServiceAccount
-  name: jenkins 
-```
-
-### Generate token using service account in the namespace
-
-[Create Token](https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#:~:text=To%20create%20a%20non%2Dexpiring,with%20that%20generated%20token%20data.)
 ```bash
 apiVersion: v1
 kind: Secret
@@ -154,6 +78,7 @@ kubectl get cert -n prod
 kubectl describe cert tirucloud-co-tls -n prod
 kubectl delete certificate -n prod tirucloud-co-tls
 ```
+
 
 
 
