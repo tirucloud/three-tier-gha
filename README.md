@@ -7,6 +7,7 @@
     - EBS CSI Driver
     - NGINX Ingress Controller
     - cert-manager
+
 ```bash
 aws eks --region ap-south-1 update-kubeconfig --name tiru-cluster
 kubectl get nodes
@@ -65,6 +66,7 @@ kubectl get cert -n prod
 kubectl describe cert tirucloud-co-tls -n prod
 kubectl delete certificate -n prod tirucloud-co-tls
 ```
+
 
 
 
