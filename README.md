@@ -57,19 +57,6 @@ sudo apt install wget
 # sonar
 docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
 ```
-
-```bash
-apiVersion: v1
-kind: Secret
-type: kubernetes.io/service-account-token
-metadata:
-  name: mysecretname
-  annotations:
-    kubernetes.io/service-account.name: jenkins
-```
-```bash
-kubectl -n prod describe secret mysecretname
-```
 ```bash
 
 kubectl get ingress -n prod
@@ -78,6 +65,7 @@ kubectl get cert -n prod
 kubectl describe cert tirucloud-co-tls -n prod
 kubectl delete certificate -n prod tirucloud-co-tls
 ```
+
 
 
 
